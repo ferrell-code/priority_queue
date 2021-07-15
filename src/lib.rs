@@ -92,6 +92,7 @@ impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
             }
         }
     }
+
     /// Pops highest priority element off queue
     /// FIFO for elements that have same priority
     ///
