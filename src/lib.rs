@@ -26,7 +26,6 @@ pub struct PriorityQueueImpl(HashMap<Vec<u8>, Vec<u8>>);
 /// Make sure to only initialize with PriorityQueueImpl::new()
 /// Manual initialization will cause undesireable behavior due to encoded values and will panic
 impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
-
     /// Exact same semantics as `[HashMap::new()]`
     ///
     /// PriorityQueueImpl::new() creates a hash map with a capacity of 0
@@ -54,9 +53,9 @@ impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
         match top_value {
             Some(element) => {
                 let element_len: usize = element[0] as usize;
-                Some(element[1..element_len+1].to_vec())
-            },
-            None => None
+                Some(element[1..element_len + 1].to_vec())
+            }
+            None => None,
         }
     }
 
@@ -75,16 +74,22 @@ impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
         let byte_key: Vec<u8> = priority.to_be_bytes().to_vec();
 
         // adds number of elements to front of vec
-        let element_len: u8 = element.len().try_into().expect("element vec length was greater than 255");
+        let element_len: u8 = element
+            .len()
+            .try_into()
+            .expect("element vec length was greater than 255");
         element.insert(0, element_len);
 
         // will insert key and value if key is not in use.
         // if key is in use the element is pushed onto the end of existing vec
         let current_value = self.0.get_mut(&byte_key);
-        if current_value.is_none() {
-            self.0.insert(byte_key, element);
-        } else {
-            current_value.unwrap().append(&mut element);
+        match current_value {
+            None => {
+                self.0.insert(byte_key, element);
+            }
+            Some(v) => {
+                v.append(&mut element);
+            }
         }
     }
     /// Pops highest priority element off queue
@@ -101,14 +106,14 @@ impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
         match val {
             Some(value) => {
                 let element_len = value[0] as usize;
-                let mut element: Vec<u8> = value.drain(..element_len+1).collect::<Vec<u8>>();
+                let mut element: Vec<u8> = value.drain(..element_len + 1).collect::<Vec<u8>>();
                 element.remove(0);
                 if value.is_empty() {
                     // remove priority key and value if vec empty
                     self.0.remove(&top_key);
                 }
                 Some(element)
-            },
+            }
             // empty hashmap returns none
             None => None,
         }
@@ -127,7 +132,10 @@ fn get_highest_priority(hmap: &HashMap<Vec<u8>, Vec<u8>>) -> Vec<u8> {
     for key in hmap.keys() {
         // decodes keys from Vec<u8> to useable u64, all vecs should be 8 bytes long
         // due to the encoding of insert()
-        let key_array: [u8; 8] = key.clone().try_into().expect("key was not encoded as [u8; 8]");
+        let key_array: [u8; 8] = key
+            .clone()
+            .try_into()
+            .expect("key was not encoded as [u8; 8]");
         let current_priority = u64::from_be_bytes(key_array);
         if current_priority > high_priority_num {
             high_priority_num = current_priority;
@@ -223,8 +231,8 @@ mod tests {
         hmap.insert(vec![5], vec![10]);
         hmap.insert(vec![1; 10], vec![5]);
         let mut queue = PriorityQueueImpl(hmap);
-        assert_eq!{queue.peek(), None};
-        assert_eq!{queue.pop(), None};
+        assert_eq! {queue.peek(), None};
+        assert_eq! {queue.pop(), None};
     }
 
     #[test]
@@ -233,6 +241,6 @@ mod tests {
         let mut hmap = HashMap::new();
         hmap.insert(vec![0; 8], vec![10, 0, 0]);
         let queue = PriorityQueueImpl(hmap);
-        assert_eq!{queue.peek(), None};
+        assert_eq! {queue.peek(), None};
     }
 }
