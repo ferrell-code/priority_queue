@@ -20,10 +20,11 @@ pub struct PriorityQueueImpl(HashMap<Vec<u8>, Vec<u8>>);
 
 /// Priority Queue
 ///
-///In the case of elements with the same priority number we follow a FIFO (first in first out) data structure
+/// Inserts encoded priority numbers as the key and encoded elements as the value into the hashmap backend.
+/// In the case of elements with the same priority number we follow a FIFO (first in first out) data structure.
 ///
 /// Make sure to only initialize with PriorityQueueImpl::new()
-/// Manual initialization will cause undesireable behavior and could panic
+/// Manual initialization will cause undesireable behavior due to encoded values and will panic
 impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
 
     /// Exact same semantics as `[HashMap::new()]`
@@ -43,7 +44,7 @@ impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
     /// Gets the value with the highest priority number
     /// Will return None in the case of an empty hashmap
     ///
-    /// [Panic]
+    /// #[Panic]
     ///
     /// Will panic if elements were manually initialized and
     /// dont follow insert encoding convention
@@ -61,12 +62,12 @@ impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
 
     /// Inserts priority and elements into hashmap using an encoding scheme
     ///
-    /// the key in hash map encodes the priority: u64 into [u8; 8]
+    /// The hash map key is an encoded priority of u64 into [u8; 8]
     ///
     /// the element is encoded by adding the length of the vec to the first value so vec![0, 0] encodes to vec![2, 0, 0]
     /// this allows us to support a FIFO data structure for when elements share priority numbers
     ///
-    ///[Panics]
+    /// #[Panic]
     ///
     /// element must have a length of 255 or less or it will panic
     fn insert(&mut self, mut element: Vec<u8>, priority: u64) {
@@ -89,7 +90,7 @@ impl PriorityQueue<Vec<u8>> for PriorityQueueImpl {
     /// Pops highest priority element off queue
     /// FIFO for elements that have same priority
     ///
-    /// [Panic]
+    /// #[Panic]
     ///
     /// will panic if data is inserted into hashmap manually and does not
     /// follow encoding convention of insert()
@@ -202,6 +203,7 @@ mod tests {
         queue.insert(Vec::new(), 10);
         assert_eq!(queue.peek(), Some(vec![]));
         assert_eq!(queue.pop(), Some(vec![]));
+        assert_eq!(queue.peek(), Some(vec![]));
         assert_eq!(queue.pop(), Some(vec![]));
         assert_eq!(queue.pop(), None);
         assert!(queue.is_empty());
